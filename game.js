@@ -1,4 +1,4 @@
-var game_scale = 0.5
+var game_scale = 0.6
 var gameport = document.getElementById("gameport");
 
 var renderer = PIXI.autoDetectRenderer(1000, 600, {backgroundColor: 0x3344ee});
@@ -53,9 +53,11 @@ window.addEventListener("keydown", function (e) {
   
   	if(e.keyCode == 38){
   		//This is the up arrow
+  		//Up arrow needs to increase velocity, its the gas pedal
   	}
   	if(e.keyCode == 40){
   		//This is the down arrow
+  		//Down arrow will be the brakes/reverse
   	}
  	if (e.keyCode == 87){
  		//This is the W key
@@ -89,15 +91,13 @@ function ready(){
 	player = new PIXI.Sprite(PIXI.loader.resources.racecar.texture);
 	player.x = racecar.x;
   	player.y = racecar.y;
-  	player.anchor.x = 0.0;
- 	player.anchor.y = 1.0;
+  	//player.anchor.x = 0.0;
+ 	//player.anchor.y = 1.0;
  	player.rotation = playerRotation;
 
  	var entity_layer = world.getObject("Entities");
   	entity_layer.addChild(player);
 }
-
-
 
 var texture = PIXI.Texture.fromImage("racecar.png");
 var sprite = new PIXI.Sprite(texture);
