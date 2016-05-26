@@ -10,8 +10,13 @@ stage.scale.y = game_scale;
 
 var player;
 var world;
-var playerRotation;//This value will be between 0 and 360 depending on which direction the
-					//racecar is facing
+
+//The following variables are used to dictate the race car's direction. Since I like using degrees
+// but PIXI wants to do radians, I scienced up a formula so that I can still do degrees.
+var radiansToDegrees = 180/Math.PI; 
+var playerAngle = 90;
+var playerRotation = playerAngle/radiansToDegrees;
+
 // Character movement constants:
 var MOVE_LEFT = 1;
 var MOVE_RIGHT = 2;
@@ -45,23 +50,27 @@ function move() {
 
 window.addEventListener("keydown", function (e) {
   e.preventDefault();
-  if (!player) return;
-  if (player.moving) return;
-  if (e.repeat == true) return;
   
-  player.direction = MOVE_NONE;
-
-  if (e.keyCode == 87)
-    player.direction = MOVE_UP;
-  else if (e.keyCode == 83)
-    player.direction = MOVE_DOWN;
-  else if (e.keyCode == 65)
-    player.position.x -= 1;
-  else if (e.keyCode == 68)
-    player.position.x += 1;
-
-  console.log(e.keyCode);
-  move();
+  	if(e.keyCode == 38){
+  		//This is the up arrow
+  	}
+  	if(e.keyCode == 40){
+  		//This is the down arrow
+  	}
+ 	if (e.keyCode == 87){
+ 		//This is the W key
+ 	}
+ 	else if (e.keyCode == 83){
+ 		//This is the S key
+ 	}
+  	else if (e.keyCode == 65){//This is the A key
+    	player.rotation -= 4/radiansToDegrees;
+  	}
+	else if (e.keyCode == 68){//This is the D key
+  		player.rotation += 4/radiansToDegrees;
+	}	
+	console.log(e.keyCode);
+	move();
 });
 
 PIXI.loader
@@ -82,6 +91,7 @@ function ready(){
   	player.y = racecar.y;
   	player.anchor.x = 0.0;
  	player.anchor.y = 1.0;
+ 	player.rotation = playerRotation;
 
  	var entity_layer = world.getObject("Entities");
   	entity_layer.addChild(player);
@@ -98,7 +108,7 @@ sprite.position.y = 50;
 stage.addChild
 
 
-function animate(time) {
+function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(stage);
 }
