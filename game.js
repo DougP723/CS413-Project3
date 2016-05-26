@@ -10,9 +10,16 @@ stage.y = 0;
 stage.scale.x = game_scale;
 stage.scale.y = game_scale;
 
+var titleScreen;
+var title_texture = PIXI.Texture.fromImage("titlescreen.png")
+var startButton;
+var start_texture = PIXI.Texture.fromImage("startbutton.png");
+var titleMusic;
+
 var player;
 var world;
-var text;
+var wallMapArray;
+var hitBox
 
 var gasP_texture = PIXI.Texture.fromImage("gaspedal.png");
 var gaspedal;
@@ -34,6 +41,13 @@ var topSpeed = 10;
 var steeringSensitivity = 5;
 var playerDrag = 0.09;
 var playerAcceleration = 0;
+
+isIntersecting = function(r1, r2) {
+        return !(r2.x-4 > (r1.x-4 + r1.width-4)  || 
+           (r2.x-4 + r2.width-4 ) < r1.x-4 || 
+           r2.y-4 > (r1.y-4 + r1.height-4) ||
+           (r2.y-4 + r2.height-4) < r1.y-4);
+}
 
 // The move function starts or continues movement
 function move() {
@@ -111,7 +125,12 @@ function mouseHandler(e){
 	}
 }
 
+function startGame(e){
+	gameStart = 1;
+}
+
 PIXI.loader
+	.add("music.mp3")
 	.add("map_json", "tutorial_map.json")
 	.add("tileset", "maptiles2.png")
 	.add("racecar", "racecar.png")
@@ -122,7 +141,10 @@ function ready(){
 	let world = tu.makeTiledWorld("map_json", "maptiles2.png");
 	stage.addChild(world);
 
+
 	var racecar = world.getObject("racecar");
+	racecar.witdh = 50;
+	racecar.height = 100;
 
 	player = new PIXI.Sprite(PIXI.loader.resources.racecar.texture);
 	player.x = racecar.x;
@@ -136,46 +158,85 @@ function ready(){
  	var entity_layer = world.getObject("Entities");
   	entity_layer.addChild(player);
 
-	timer1 = new PIXI.Text('Lap1: ',{font : '40px Arial', fill : 0x000000, align : 'center'});
+	timer1 = new PIXI.Text('Lap1: --:--',{font : '40px Arial', fill : 0x000000, align : 'center'});
 	timer1.x = 0;
 	timer1.y = 0;
+	timer1.alpha = 0;
 	HUD.addChild(timer1);
 
 	gaspedal = new PIXI.Sprite(gasP_texture);
 	gaspedal.position.x = 25;
 	gaspedal.position.y = 675;
-	gaspedal.interactive = true;
+	gaspedal.alpha = 0;
+	gaspedal.interactive = false;
 	gaspedal.on('mousedown', mouseHandler);
 	gaspedal.on('mouseup', mouseHandler);
 	//gaspedal.on('click', mouseHandler);
 	stage.addChild(gaspedal);
 	stage.addChild(HUD);
 
+	wallMapArray = world.getObject("wallLayer").data;
+
+	titleScreen = new PIXI.Sprite(title_texture);
+	titleScreen.position.x = 0;
+	titleScreen.position.y = 0;
+	titleScreen.anchor.x = 0;
+	titleScreen.anchor.y = 0;
+	stage.addChild(titleScreen);
+
+	startButton = new PIXI.Sprite(start_texture);
+	startButton.position.x = 700;
+	startButton.position.y = 700;
+	startButton.interactive = true;
+	startButton.on('mousedown', startGame);
+	stage.addChild(startButton);
+
+	titleMusic = PIXI.audioManager.getAudio("music.mp3");
 
 }
 
+
 var count = 0;
 var clock1 = 0;
-
+var gameStart = 0;
 function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(stage);
+
+	if (gameStart == 0){
+		titleMusic.play();
+	}
+
+	if (gameStart == 1){
+		titleScreen.alpha = 0;
+		startButton.alpha = 0;
+		titleMusic.stop();
+
+		gaspedal.alpha = 1;
+		gaspedal.interactive = true;
+		timer1.alpha = 1;
+
+		count++;
+	}
+
+	if (gameStart == 0){
+
+	}
+
 	player.x += player.vx;
 	player.y += player.vy;
 
-	count++;
 	if (count == 1){
 		count = 0;
 		clock1 += 0.02;
 		timer1.text = "Lap1: " + clock1.toFixed(2);
 	}
-	
-
 	if (playerAcceleration != 0){
 		move();
 		//playerAcceleration = 0;
 	}
 
+	//This section of code will slow the car down if the player is not giving it gas
 	if (player.vx > 0){
 		player.vx -= player.vx*playerDrag;
 	}
@@ -189,6 +250,7 @@ function animate() {
 		player.vy += -player.vy*playerDrag;
 	}
 
+	//This code will move the hud elements around with the screen
 	if (stage.x <= 0 && stage.x >= -1400){
 		stage.x += -player.vx/2;
 		if (stage.x < -0.1 && stage.x > -1399.9){
@@ -217,5 +279,12 @@ function animate() {
 		stage.y = -839.9
 	}
 
+	//COLISION DETECTION
+	for (var j in wallMapArray){
+		var wall = wallMapArray[j];
+		if(isIntersecting(racecar, wall)){
+		
+		}
+	}
 }
 animate();
