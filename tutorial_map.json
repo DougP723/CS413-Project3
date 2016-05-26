@@ -10,8 +10,32 @@
          "width":80,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "height":48,
+         "name":"Entities",
+         "objects":[
+                {
+                 "gid":5,
+                 "height":99.6666666666667,
+                 "id":7,
+                 "name":"racecar",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":50,
+                 "x":900.067833118254,
+                 "y":355.691724301109
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":80,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":1,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "renderorder":"right-up",
  "tileheight":50,
@@ -65,6 +89,19 @@
                  "name":"string"
                 }
             },
+         "tilewidth":50
+        }, 
+        {
+         "columns":1,
+         "firstgid":5,
+         "image":"racecar.png",
+         "imageheight":104,
+         "imagewidth":54,
+         "margin":2,
+         "name":"racecar",
+         "spacing":2,
+         "tilecount":2,
+         "tileheight":50,
          "tilewidth":50
         }],
  "tilewidth":50,
