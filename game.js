@@ -16,6 +16,8 @@ var startButton;
 var start_texture = PIXI.Texture.fromImage("startbutton.png");
 var backButton;
 var back_texture = PIXI.Texture.fromImage("backbutton.png");
+var muteButton;
+var mute_texture = PIXI.Texture.fromImage("mutebutton.png");
 var titleMusic;
 
 
@@ -143,6 +145,13 @@ function quitToMenu(e){
 	gameStart = 0;
 }
 
+function muteSound(e){
+	if (soundOn == 1)
+		soundOn = 0;
+	else
+		soundOn = 1;
+}
+
 PIXI.loader
 	.add("music.mp3")
 	.add("racestart.mp3")
@@ -158,7 +167,7 @@ function ready(){
 	let world = tu.makeTiledWorld("map_json", "maptiles2.png");
 	stage.addChild(world);
 
-	var finishLine = world.getObject("finishLine");
+
 	var racecar = world.getObject("racecar");
 	playerStartX = racecar.x;
 	playerStartY = racecar.y;
@@ -173,9 +182,6 @@ function ready(){
   	player.anchor.x = 0.5;
  	player.anchor.y = 1.0;
  	player.rotation = playerRotation;
-
- 	var obstructionLayer = world.getObject("Obstructions");
- 	obstructionLayer.addChild(finishLine);
 
  	var entity_layer = world.getObject("Entities");
   	entity_layer.addChild(player);
@@ -203,6 +209,14 @@ function ready(){
 	backButton.alpha = 0;
 	backButton.on('mousedown', quitToMenu);
 	HUD.addChild(backButton);
+
+	muteButton = new PIXI.Sprite(mute_texture);
+	muteButton.position.x = 150;
+	muteButton.position.y = -50;
+	muteButton.interactive = true;
+	//muteButton.alpha = 0;
+	muteButton.on('mousedown', muteSound);
+	HUD.addChild(muteButton);
 	stage.addChild(HUD);
 
 	wallMapArray = world.getObject("wallLayer").data;
@@ -240,6 +254,7 @@ var clock1 = 0;
 var gameStart = 0;
 var start = 0;
 var engineCount = 0;
+var soundOn = 1;
 function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(stage);
@@ -247,7 +262,9 @@ function animate() {
 	if (gameStart == 0){
 		titleScreen.alpha = 1;
 		startButton.alpha = 1;
-		titleMusic.play();
+
+		if (soundOn == 1)
+			titleMusic.play();
 
 		backButton.alpha = 0;
 		gaspedal.alpha = 0;
@@ -266,6 +283,11 @@ function animate() {
 
 		player.x = playerStartX;
 		player.y = playerStartY;
+		player.rotation = 90/radiansToDegrees;
+		player.vx = 0;
+		player.vy = 0;
+		playerAcceleration = 0;
+
 	}
 
 	if (gameStart == 1){
@@ -278,21 +300,23 @@ function animate() {
 		gaspedal.interactive = true;
 		timer1.alpha = 1;
 
-		if (start == 10){
-			startSFX.play();
-		}
-		if (engineCount == 1){
-			engineSFX.play();
-		}
-		else if (engineCount == 4){
-			engineSFX2.play();
-		}
-		else if (engineCount == 7){
-			engineSFX3.play();
-		}
-		else if (engineCount == 10){
-			engineSFX4.play();
-			engineCount = -1;
+		if (soundOn == 1){
+			if (start == 10){
+				startSFX.play();
+			}
+			if (engineCount == 1){
+				engineSFX.play();
+			}
+			else if (engineCount == 4){
+				engineSFX2.play();
+			}
+			else if (engineCount == 7){
+				engineSFX3.play();
+			}
+			else if (engineCount == 10){
+				engineSFX4.play();
+				engineCount = -1;
+			}
 		}
 
 		engineCount++;
@@ -358,10 +382,8 @@ function animate() {
 	//COLISION DETECTION
 	for (var j in wallMapArray){
 		var wall = wallMapArray[j];
-		racecar.x = player.x;
-		racecar.y = player.y;
-		if(isIntersecting(entity_layer, obstructionLayer)){
-			clock1 = 0;
+		if(isIntersecting(player, wall)){
+			
 		}
 	}
 }
