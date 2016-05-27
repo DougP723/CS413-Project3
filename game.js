@@ -26,16 +26,17 @@ var engineSFX3;
 var engineSFX4;
 
 var player;
+var playerStartX;
+var playerStartY;
 var world;
 var wallMapArray;
-var hitBox
 
 var gasP_texture = PIXI.Texture.fromImage("gaspedal.png");
 var gaspedal;
 
 
 var HUD = new PIXI.Container();
-HUD.x = 1200;
+HUD.x = 1400;
 HUD.y = 100;
 
 var timer1;
@@ -138,6 +139,10 @@ function startGame(e){
 	gameStart = 1;
 }
 
+function quitToMenu(e){
+	gameStart = 0;
+}
+
 PIXI.loader
 	.add("music.mp3")
 	.add("racestart.mp3")
@@ -153,24 +158,29 @@ function ready(){
 	let world = tu.makeTiledWorld("map_json", "maptiles2.png");
 	stage.addChild(world);
 
-
+	var finishLine = world.getObject("finishLine");
 	var racecar = world.getObject("racecar");
-	racecar.witdh = 50;
-	racecar.height = 100;
+	playerStartX = racecar.x;
+	playerStartY = racecar.y;
 
 	player = new PIXI.Sprite(PIXI.loader.resources.racecar.texture);
 	player.x = racecar.x;
   	player.y = racecar.y;
+  	player.width = 50;
+  	player.height = 100;
   	player.vx = 0;
 	player.vy = 0;
   	player.anchor.x = 0.5;
  	player.anchor.y = 1.0;
  	player.rotation = playerRotation;
 
+ 	var obstructionLayer = world.getObject("Obstructions");
+ 	obstructionLayer.addChild(finishLine);
+
  	var entity_layer = world.getObject("Entities");
   	entity_layer.addChild(player);
 
-	timer1 = new PIXI.Text('Lap1: --:--',{font : '40px Arial', fill : 0x000000, align : 'center'});
+	timer1 = new PIXI.Text('Time: --:--',{font : '40px Arial', fill : 0x000000, align : 'center'});
 	timer1.x = 0;
 	timer1.y = 0;
 	timer1.alpha = 0;
@@ -190,6 +200,8 @@ function ready(){
 	backButton.position.x = 0;
 	backButton.position.y = -50;
 	backButton.interactive = true;
+	backButton.alpha = 0;
+	backButton.on('mousedown', quitToMenu);
 	HUD.addChild(backButton);
 	stage.addChild(HUD);
 
@@ -236,7 +248,24 @@ function animate() {
 		titleScreen.alpha = 1;
 		startButton.alpha = 1;
 		titleMusic.play();
+
+		backButton.alpha = 0;
+		gaspedal.alpha = 0;
+		timer1.alpha = 0;
 		start = 0;
+		clock1 = 0;
+
+		stage.x = 0;
+		stage.y = 0;
+
+		HUD.x = 1400;
+		HUD.y = 100;
+
+		gaspedal.position.x = 25;
+		gaspedal.position.y = 675;
+
+		player.x = playerStartX;
+		player.y = playerStartY;
 	}
 
 	if (gameStart == 1){
@@ -244,6 +273,7 @@ function animate() {
 		startButton.alpha = 0;
 		titleMusic.stop();
 
+		backButton.alpha = 1;
 		gaspedal.alpha = 1;
 		gaspedal.interactive = true;
 		timer1.alpha = 1;
@@ -275,7 +305,7 @@ function animate() {
 	if (count == 1){
 		count = 0;
 		clock1 += 0.02;
-		timer1.text = "Lap1: " + clock1.toFixed(2);
+		timer1.text = "Time: " + clock1.toFixed(2);
 	}
 	if (playerAcceleration != 0){
 		move();
@@ -328,8 +358,10 @@ function animate() {
 	//COLISION DETECTION
 	for (var j in wallMapArray){
 		var wall = wallMapArray[j];
-		if(isIntersecting(racecar, wall)){
-		
+		racecar.x = player.x;
+		racecar.y = player.y;
+		if(isIntersecting(entity_layer, obstructionLayer)){
+			clock1 = 0;
 		}
 	}
 }
