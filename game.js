@@ -14,7 +14,16 @@ var titleScreen;
 var title_texture = PIXI.Texture.fromImage("titlescreen.png")
 var startButton;
 var start_texture = PIXI.Texture.fromImage("startbutton.png");
+var backButton;
+var back_texture = PIXI.Texture.fromImage("backbutton.png");
 var titleMusic;
+
+
+var startSFX;
+var engineSFX;
+var engineSFX2;
+var engineSFX3;
+var engineSFX4;
 
 var player;
 var world;
@@ -131,6 +140,9 @@ function startGame(e){
 
 PIXI.loader
 	.add("music.mp3")
+	.add("racestart.mp3")
+	.add("engine.mp3")
+	.add("engine2.mp3")
 	.add("map_json", "tutorial_map.json")
 	.add("tileset", "maptiles2.png")
 	.add("racecar", "racecar.png")
@@ -173,6 +185,12 @@ function ready(){
 	gaspedal.on('mouseup', mouseHandler);
 	//gaspedal.on('click', mouseHandler);
 	stage.addChild(gaspedal);
+
+	backButton = new PIXI.Sprite(back_texture);
+	backButton.position.x = 0;
+	backButton.position.y = -50;
+	backButton.interactive = true;
+	HUD.addChild(backButton);
 	stage.addChild(HUD);
 
 	wallMapArray = world.getObject("wallLayer").data;
@@ -180,18 +198,27 @@ function ready(){
 	titleScreen = new PIXI.Sprite(title_texture);
 	titleScreen.position.x = 0;
 	titleScreen.position.y = 0;
+	titleScreen.scale.x = 0.8;
+	titleScreen.scale.y = 0.8;
 	titleScreen.anchor.x = 0;
 	titleScreen.anchor.y = 0;
 	stage.addChild(titleScreen);
 
 	startButton = new PIXI.Sprite(start_texture);
-	startButton.position.x = 700;
-	startButton.position.y = 700;
+	startButton.position.x = 620;
+	startButton.position.y = 725;
+	startButton.scale.x = 0.3;
+	startButton.scale.y = 0.3;
 	startButton.interactive = true;
 	startButton.on('mousedown', startGame);
 	stage.addChild(startButton);
 
 	titleMusic = PIXI.audioManager.getAudio("music.mp3");
+	startSFX = PIXI.audioManager.getAudio("racestart.mp3");
+	engineSFX = PIXI.audioManager.getAudio("engine.mp3");
+	engineSFX2 = PIXI.audioManager.getAudio("engine2.mp3");
+	engineSFX3 = PIXI.audioManager.getAudio("engine.mp3");
+	engineSFX4 = PIXI.audioManager.getAudio("engine.mp3");
 
 }
 
@@ -199,12 +226,17 @@ function ready(){
 var count = 0;
 var clock1 = 0;
 var gameStart = 0;
+var start = 0;
+var engineCount = 0;
 function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(stage);
 
 	if (gameStart == 0){
+		titleScreen.alpha = 1;
+		startButton.alpha = 1;
 		titleMusic.play();
+		start = 0;
 	}
 
 	if (gameStart == 1){
@@ -216,13 +248,27 @@ function animate() {
 		gaspedal.interactive = true;
 		timer1.alpha = 1;
 
+		if (start == 10){
+			startSFX.play();
+		}
+		if (engineCount == 1){
+			engineSFX.play();
+		}
+		else if (engineCount == 4){
+			engineSFX2.play();
+		}
+		else if (engineCount == 7){
+			engineSFX3.play();
+		}
+		else if (engineCount == 10){
+			engineSFX4.play();
+			engineCount = -1;
+		}
+
+		engineCount++;
+		start++;
 		count++;
 	}
-
-	if (gameStart == 0){
-
-	}
-
 	player.x += player.vx;
 	player.y += player.vy;
 
